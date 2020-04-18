@@ -67,9 +67,10 @@ const micromatch = require('micromatch');
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
     const filterFile = file => {
+      console.log('ignore', ignore);
       if (file === '') return false;
       if (['', './', '.'].indexOf(localPath) !== -1 && !file.startsWith(localPath)) return false;
-      if (ignore.length && !micromatch.isMatch(file, ignore)) return false;
+      if (ignore.length && micromatch.isMatch(file, ignore)) return false;
       return true;
     }
 
