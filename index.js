@@ -75,25 +75,25 @@ const { Readable, Transform } = require('stream');
       process.exit();
     }
   
-    // for (let i = 0; i < filteredModified.length; i++) {
-    //   const file = filteredModified[i];
-    //   await client.fastPut(file, remotePath + '/' + file);
-    //   console.log('Uploaded: ' + file);
-    // }
+    for (let i = 0; i < filteredModified.length; i++) {
+      const file = filteredModified[i];
+      await client.fastPut(file, remotePath + '/' + file);
+      console.log('Uploaded: ' + file);
+    }
   
-    // for (let i = 0; i < fileteredRenamed.length; i++) {
-    //   const file = fileteredRenamed[i];
-    //   await client.rename(remotePath + '/' + file, remotePath + '/' + file);
-    //   console.log('Renamed: ' + file);
-    // }
+    for (let i = 0; i < fileteredRenamed.length; i++) {
+      const file = fileteredRenamed[i];
+      await client.rename(remotePath + '/' + file, remotePath + '/' + file);
+      console.log('Renamed: ' + file);
+    }
   
-    // for (let i = 0; i < filteredDeleted.length; i++) {
-    //   const file = filteredDeleted[i];
-    //   await client.delete(remotePath + '/' + file);
-    //   console.log('Deleted: ' + file);
-    // }
+    for (let i = 0; i < filteredDeleted.length; i++) {
+      const file = filteredDeleted[i];
+      await client.delete(remotePath + '/' + file);
+      console.log('Deleted: ' + file);
+    }
   
-    console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
+    // console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
   
     await client.put(Readable.from(end), remotePath + '/.revision', { mode: 0o644 });
     client.end();
