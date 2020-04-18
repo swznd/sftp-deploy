@@ -1,0 +1,34 @@
+name: 'SFTP Deploy'
+description: 'SFTP Deploy with Proper'
+inputs:
+  host: 
+    description: 'Remote Host'
+    required: true
+    default: ''
+  port:
+    description: 'Remote Port'
+    required: false
+    default: '22'
+  user:
+    description: 'User'
+    required: true
+    default: ''
+  password:
+    descritpon: 'Password'
+    required: false
+    default: ''
+  private_key:
+    description: 'SSH Private Key'
+    required: false
+    default: ''
+  local_path:
+    description: 'Local Repository Path'
+    required: false
+    default: ''
+  remote_path:
+    description: 'Remote Path'
+    required: false,
+    default: ''
+runs:
+  using: 'node12'
+  main: 'index.js'
