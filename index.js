@@ -2,8 +2,12 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
 const sftpClient = require('ssh2-sftp-client');
+const { Readable, Transform } = require('stream');
 
 (async () => {
+  let client = null;
+  let connected = false;
+
   try {
     const host = core.getInput('host');
     const port = core.getInput('port');
@@ -22,27 +26,47 @@ const sftpClient = require('ssh2-sftp-client');
       privateKey: privateKey
     };
     
-    const client = new sftpClient;
+    client = new sftpClient;
     await client.connect(config);
-  
-    let start = await client.fastGet(remotePath + '/.revision');
-    const end = payload.before;
-  
-    if (start == '') {
-      start = await git('hash-object', '-t', 'tree', '/dev/null');
+    connected = true;
+
+    let start = '';
+
+    if (await client.exists(remotePath + '/.revision')) {
+      const st = new Transform();
+      st._transform = function (chunk,encoding,done)  {
+        this.push(chunk)
+        done();
+      };
+
+      await client.get(remotePath + '/.revision', st);
+      const remoteHash = new Promise((resolve, reject) => {
+        st.on('end', resolve(st.read()));
+        st.on('error', reject)
+      });
+
+      try { start = (await git('rev-parse', '-q', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
     }
-  
+
+    console.log('Remote Revision:', start);
+
+    const end = payload.before;
+    
+    if (start == '') {
+      start = (await git('hash-object', '-t', 'tree', '/dev/null')).trim();
+    }
+    
+    console.log('Comparing', `${start}..${end}`);
+
     const modified = await git('diff', '--name-only', '--diff-filter=AM', start, end);
     const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
-    const filterFile = files => {
-      files.filter(file => ['', './', '.'].indexOf(localPath) !== -1 || file.startsWith(localPath));
-    }
-  
-    const filteredModified = modified.filter(filterFile);
-    const fileteredRenamed = renamed.filer(filterFile);
-    const filteredDeleted = deleted.filter(filterFile);
+    const filterFile = file => ['', './', '.'].indexOf(localPath) !== -1 || file.startsWith(localPath);
+
+    const filteredModified = modified.split("\n").filter(filterFile);
+    const fileteredRenamed = renamed.split("\n").filter(filterFile);
+    const filteredDeleted = deleted.split("\n").filter(filterFile);
   
     if (filteredModified.length === 0 && fileteredRenamed.length === 0 && filteredDeleted.length === 0) {
       console.log('No Changes');
@@ -69,23 +93,39 @@ const sftpClient = require('ssh2-sftp-client');
   
     console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
   
-    await client.put(end, remotePath + '/.revision');
+    await client.put(Readable.from(end), remotePath + '/.revision', { mode: 0o644 });
+    client.end();
   } catch(e) {
     core.setFailed(e.message);
+    if (client && connected) client.end();
   }
   
   function git() {
     return new Promise(async (resolve, reject) => {
-      const options = {};
-      options.listeners = {
-        stdout: (data) => {
-          resolve(data.toString())
-        },
-        stderr: (data) => {
-          reject(data.toString())
+      try {
+        let output = '';
+        let error = '';
+
+        await exec.exec('git', Array.from(arguments), {
+          listeners: {
+            stdout: (data) => {
+              output += data.toString();
+            },
+            stderr: (data) => {
+              error += data.toString();
+            }
+          },
+          silent: true
+        });
+
+        if (error.length) {
+          return reject(error);
         }
-      };
-      await exec.exec('git', arguments, options)
+
+        resolve(output);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 })();
