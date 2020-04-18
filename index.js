@@ -45,8 +45,8 @@ const { Readable, Transform } = require('stream');
         st.on('end', resolve(st.read()));
         st.on('error', reject)
       });
-
-      try { start = (await git('rev-parse', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
+      start = await remoteHash;
+      // try { start = (await git('rev-parse', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
     }
 
     console.log('Remote Revision:', start);
@@ -54,6 +54,7 @@ const { Readable, Transform } = require('stream');
     const end = payload.after;
     
     if (start == '') {
+      console.log('Remote revision empty, get from initial commit');
       start = (await git('hash-object', '-t', 'tree', '/dev/null')).trim();
     }
     
