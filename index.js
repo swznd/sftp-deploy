@@ -18,7 +18,7 @@ const micromatch = require('micromatch');
     const privateKey = core.getInput('private_key');
     const localPath = core.getInput('local_path');
     const remotePath = (core.getInput('remote_path') || '').trim('/');
-    const ignore = (core.getInput('ignore') || '').split(',');
+    const ignore = (core.getInput('ignore') || '').split(',').filter(Bollean);
     const payload = github.context.payload;
   
     const config = {
@@ -67,7 +67,6 @@ const micromatch = require('micromatch');
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
     const filterFile = file => {
-      console.log('ignore', ignore);
       if (file === '') return false;
       if (['', './', '.'].indexOf(localPath) !== -1 && !file.startsWith(localPath)) return false;
       if (ignore.length && micromatch.isMatch(file, ignore)) return false;
