@@ -16,7 +16,7 @@ const { Readable, Transform } = require('stream');
     const privateKey = core.getInput('private_key');
     const localPath = core.getInput('local_path');
     const remotePath = (core.getInput('remote_path') || '').trim('/');
-    const ignore = core.getInput('ignore');
+    const ignore = (core.getInput('ignore') || '').split(',');
     const payload = github.context.payload;
   
     const config = {
@@ -49,7 +49,7 @@ const { Readable, Transform } = require('stream');
       // try { start = (await git('rev-parse', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
     }
 
-    console.log('Remote Revision:', start);
+    console.log('Remote Revision:', start.toString());
 
     const end = payload.after;
     
