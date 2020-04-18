@@ -65,7 +65,7 @@ const path = require('path');
     const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
-    const filterFile = file => ['', './', '.'].indexOf(localPath) !== -1 || file.startsWith(localPath) || (ignore && micromatch.isMatch(file, ignorePattern));
+    const filterFile = file => file !== '' && (['', './', '.'].indexOf(localPath) === -1 && file.startsWith(localPath)) && (ignore && !micromatch.isMatch(file, ignore));
 
     const filteredModified = modified.split("\n").filter(filterFile);
     const fileteredRenamed = renamed.split("\n").filter(filterFile);
@@ -80,7 +80,6 @@ const path = require('path');
     console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
 
     for (let i = 0; i < filteredModified.length; i++) {
-      console.log('i', i, 'fm', filteredModified[i], 'f', path.join(__dirname, filteredModified[i]));
       const file = path.join(__dirname, filteredModified[i]);
       console.log('Uploading ', file);
       await client.fastPut(file, remotePath + '/' + file);
