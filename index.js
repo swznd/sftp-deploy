@@ -66,7 +66,12 @@ const micromatch = require('micromatch');
     const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
-    const filterFile = file => file !== '' && (['', './', '.'].indexOf(localPath) !== -1 && file.startsWith(localPath)) && (ignore.length && !micromatch.isMatch(file, ignore));
+    const filterFile = file => {
+      if (file === '') return false;
+      if (['', './', '.'].indexOf(localPath) !== -1 && !file.startsWith(localPath)) return false;
+      if (ignore.length && !micromatch.isMatch(file, ignore)) return false;
+      return true;
+    }
 
     const filteredModified = modified.split("\n").filter(filterFile);
     const fileteredRenamed = renamed.split("\n").filter(filterFile);
