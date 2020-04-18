@@ -86,7 +86,15 @@ const micromatch = require('micromatch');
   
       for (let i = 0; i < filteredDeleted.length; i++) {
         const file = filteredDeleted[i];
-        await client.delete(remotePath + '/' + file);
+        const remoteFile = remotePath + '/' + file;
+        const checkRemoteFile = await client.exists(remoteFile);
+
+        if (checkRemoteFile == 'd') {
+          await client.rmdir(remoteFile, true);
+        }
+        else if ( ! checkRemoteFile) {
+          await client.delete(remoteFile + '/' + file);
+        }
         console.log('Deleted: ' + file);
       } 
 
