@@ -76,6 +76,7 @@ const { Readable, Transform } = require('stream');
     }
   
     for (let i = 0; i < filteredModified.length; i++) {
+      console.log('Uploading ', file);
       const file = filteredModified[i];
       await client.fastPut(file, remotePath + '/' + file);
       console.log('Uploaded: ' + file);
