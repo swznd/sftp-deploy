@@ -76,6 +76,9 @@ const path = require('path');
       process.exit();
     }
   
+    console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
+    console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
+
     for (let i = 0; i < filteredModified.length; i++) {
       const file = path.join(__dirname, filteredModified[i]);
       console.log('Uploading ', file);
@@ -94,8 +97,6 @@ const path = require('path');
       await client.delete(remotePath + '/' + file);
       console.log('Deleted: ' + file);
     }
-  
-    // console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
   
     await client.put(Readable.from(end), remotePath + '/.revision', { mode: 0o644 });
     client.end();
