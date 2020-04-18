@@ -92,7 +92,7 @@ const micromatch = require('micromatch');
           await client.rmdir(remoteFile, true);
         }
         else {
-          await client.delete(remoteFile + '/' + file);
+          await client.delete(remoteFile);
         }
         console.log('Deleted: ' + file);
       } 
