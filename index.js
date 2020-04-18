@@ -73,29 +73,29 @@ const path = require('path');
   
     if (filteredModified.length === 0 && fileteredRenamed.length === 0 && filteredDeleted.length === 0) {
       console.log('No Changes');
-      process.exit();
     }
+    else {
+      console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
+      console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
   
-    console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
-    console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
-
-    for (let i = 0; i < filteredModified.length; i++) {
-      const file = path.join(__dirname, filteredModified[i]);
-      console.log('Uploading ', file);
-      await client.fastPut(file, remotePath + '/' + file);
-      console.log('Uploaded: ' + file);
-    }
-  
-    for (let i = 0; i < fileteredRenamed.length; i++) {
-      const file = fileteredRenamed[i];
-      await client.rename(remotePath + '/' + file, remotePath + '/' + file);
-      console.log('Renamed: ' + file);
-    }
-  
-    for (let i = 0; i < filteredDeleted.length; i++) {
-      const file = filteredDeleted[i];
-      await client.delete(remotePath + '/' + file);
-      console.log('Deleted: ' + file);
+      for (let i = 0; i < filteredModified.length; i++) {
+        const file = path.join(__dirname, filteredModified[i]);
+        console.log('Uploading ', file);
+        await client.fastPut(file, remotePath + '/' + file);
+        console.log('Uploaded: ' + file);
+      }
+    
+      for (let i = 0; i < fileteredRenamed.length; i++) {
+        const file = fileteredRenamed[i];
+        await client.rename(remotePath + '/' + file, remotePath + '/' + file);
+        console.log('Renamed: ' + file);
+      }
+    
+      for (let i = 0; i < filteredDeleted.length; i++) {
+        const file = filteredDeleted[i];
+        await client.delete(remotePath + '/' + file);
+        console.log('Deleted: ' + file);
+      } 
     }
   
     await client.put(Readable.from(end), remotePath + '/.revision', { mode: 0o644 });
