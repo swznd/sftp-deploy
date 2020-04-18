@@ -64,7 +64,7 @@ const micromatch = require('micromatch');
 
     const modified = await git('diff', '--name-only', '--diff-filter=AM', start, end);
     const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
-    const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
+    const deleted = await git('diff-tree', '--name-only', '--diff-filter=D', '-t', start, end);
   
     const filterFile = file => {
       if (file === '') return false;
@@ -81,18 +81,17 @@ const micromatch = require('micromatch');
       console.log('No Changes');
     }
     else {
-      console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
-      console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
-  
       for (let i = 0; i < filteredDeleted.length; i++) {
         const file = filteredDeleted[i];
         const remoteFile = remotePath + '/' + file;
         const checkRemoteFile = await client.exists(remoteFile);
 
+        if ( ! checkRemoteFile) continue;
+        
         if (checkRemoteFile == 'd') {
           await client.rmdir(remoteFile, true);
         }
-        else if ( ! checkRemoteFile) {
+        else {
           await client.delete(remoteFile + '/' + file);
         }
         console.log('Deleted: ' + file);
@@ -112,7 +111,6 @@ const micromatch = require('micromatch');
           await client.mkdir(remoteFilePath, true);
         }
 
-        console.log('Uploading ', file);
         await client.fastPut(file, remoteFile);
         console.log('Uploaded: ' + file);
       }
