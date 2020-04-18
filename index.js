@@ -18,7 +18,7 @@ const micromatch = require('micromatch');
     const privateKey = core.getInput('private_key');
     const localPath = core.getInput('local_path');
     const remotePath = (core.getInput('remote_path') || '').trim('/');
-    const ignore = (core.getInput('ignore') || '').split(',').filter(Bollean);
+    const ignore = (core.getInput('ignore') || '').split(',').filter(Boolean);
     const payload = github.context.payload;
   
     const config = {
