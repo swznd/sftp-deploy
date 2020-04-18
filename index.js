@@ -4,6 +4,7 @@ const exec = require('@actions/exec');
 const sftpClient = require('ssh2-sftp-client');
 const { Readable, Transform } = require('stream');
 const path = require('path');
+const micromatch = require('micromatch');
 
 (async () => {
   let client = null;
