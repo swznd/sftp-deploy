@@ -84,10 +84,28 @@ const micromatch = require('micromatch');
       console.log('modified', modified, 'deleted', deleted, 'renamed', renamed);
       console.log('modified', filteredModified, 'deleted', filteredDeleted, 'renamed', fileteredRenamed);
   
+      for (let i = 0; i < filteredDeleted.length; i++) {
+        const file = filteredDeleted[i];
+        await client.delete(remotePath + '/' + file);
+        console.log('Deleted: ' + file);
+      } 
+
       for (let i = 0; i < filteredModified.length; i++) {
         const file = path.join(__dirname, filteredModified[i]);
+        const remoteFile = remotePath + '/' + file;
+        const remoteFilePath = path.dirname(remoteFile);
+        const checkRemoteFilePath = await client.exists(remoteFilePath);
+        
+        if (checkRemoteFilePath != 'd') {
+          if (checkRemoteFilePath) {
+            await client.delete(remoteFilePath);
+          }
+
+          await client.mkdir(remoteFilePath, true);
+        }
+
         console.log('Uploading ', file);
-        await client.fastPut(file, remotePath + '/' + file);
+        await client.fastPut(file, remoteFile);
         console.log('Uploaded: ' + file);
       }
     
@@ -96,12 +114,6 @@ const micromatch = require('micromatch');
         await client.rename(remotePath + '/' + file, remotePath + '/' + file);
         console.log('Renamed: ' + file);
       }
-    
-      for (let i = 0; i < filteredDeleted.length; i++) {
-        const file = filteredDeleted[i];
-        await client.delete(remotePath + '/' + file);
-        console.log('Deleted: ' + file);
-      } 
     }
   
     await client.put(Readable.from(end), remotePath + '/.revision', { mode: 0o644 });
