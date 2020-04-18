@@ -99,7 +99,7 @@ const micromatch = require('micromatch');
       } 
 
       for (let i = 0; i < filteredModified.length; i++) {
-        const file = path.join(__dirname, filteredModified[i]);
+        const file = filteredModified[i];
         const remoteFile = remotePath + '/' + file;
         const remoteFilePath = path.dirname(remoteFile);
         const checkRemoteFilePath = await client.exists(remoteFilePath);
