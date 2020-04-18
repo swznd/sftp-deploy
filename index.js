@@ -3,6 +3,7 @@ const github = require('@actions/github');
 const exec = require('@actions/exec');
 const sftpClient = require('ssh2-sftp-client');
 const { Readable, Transform } = require('stream');
+const path = require('path');
 
 (async () => {
   let client = null;
@@ -76,8 +77,8 @@ const { Readable, Transform } = require('stream');
     }
   
     for (let i = 0; i < filteredModified.length; i++) {
+      const file = path.join(__dirname, filteredModified[i]);
       console.log('Uploading ', file);
-      const file = filteredModified[i];
       await client.fastPut(file, remotePath + '/' + file);
       console.log('Uploaded: ' + file);
     }
