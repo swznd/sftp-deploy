@@ -50,7 +50,7 @@ const { Readable, Transform } = require('stream');
 
     console.log('Remote Revision:', start);
 
-    const end = payload.before;
+    const end = payload.after;
     
     if (start == '') {
       start = (await git('hash-object', '-t', 'tree', '/dev/null')).trim();
