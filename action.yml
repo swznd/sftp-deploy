@@ -1,4 +1,4 @@
-name: 'SFTP Deploy'
+name: 'Proper SFTP Deploy'
 description: 'SFTP Deploy with Proper'
 inputs:
   host: 
@@ -27,7 +27,11 @@ inputs:
     default: ''
   remote_path:
     description: 'Remote Path'
-    required: false,
+    required: false
+    default: ''
+  ignore:
+    description: 'Ignore file/folders by glob matching'
+    required: false
     default: ''
 runs:
   using: 'node12'

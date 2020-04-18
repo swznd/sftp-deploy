@@ -16,6 +16,7 @@ const { Readable, Transform } = require('stream');
     const privateKey = core.getInput('private_key');
     const localPath = core.getInput('local_path');
     const remotePath = (core.getInput('remote_path') || '').trim('/');
+    const ignore = core.getInput('ignore');
     const payload = github.context.payload;
   
     const config = {
@@ -62,7 +63,7 @@ const { Readable, Transform } = require('stream');
     const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
     const deleted = await git('diff', '--name-only', '--diff-filter=D', start, end);
   
-    const filterFile = file => ['', './', '.'].indexOf(localPath) !== -1 || file.startsWith(localPath);
+    const filterFile = file => ['', './', '.'].indexOf(localPath) !== -1 || file.startsWith(localPath) || (ignore && micromatch.isMatch(file, ignorePattern));
 
     const filteredModified = modified.split("\n").filter(filterFile);
     const fileteredRenamed = renamed.split("\n").filter(filterFile);
