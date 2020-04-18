@@ -45,7 +45,7 @@ const { Readable, Transform } = require('stream');
         st.on('error', reject)
       });
 
-      try { start = (await git('rev-parse', '-q', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
+      try { start = (await git('rev-parse', '--verify', `${await remoteHash}^{commit}`)).trim(); } catch(e) {};
     }
 
     console.log('Remote Revision:', start);
@@ -115,7 +115,7 @@ const { Readable, Transform } = require('stream');
               error += data.toString();
             }
           },
-          silent: true
+          silent: false
         });
 
         if (error.length) {
