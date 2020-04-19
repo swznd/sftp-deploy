@@ -62,8 +62,7 @@ const micromatch = require('micromatch');
     
     console.log('Comparing', `${start}..${end}`);
 
-    const modified = await git('diff', '--name-only', '--diff-filter=AM', start, end);
-    const renamed = await git('diff', '--name-only', '--diff-filter=R', start, end);
+    const modified = await git('diff', '--name-only', '--diff-filter=AM', '-M100%', start, end);
     const deleted = await git('diff-tree', '--name-only', '--diff-filter=D', '-t', start, end);
   
     const filterFile = file => {
@@ -74,10 +73,9 @@ const micromatch = require('micromatch');
     }
 
     const filteredModified = modified.split("\n").filter(filterFile);
-    const fileteredRenamed = renamed.split("\n").filter(filterFile);
     const filteredDeleted = deleted.split("\n").filter(filterFile);
   
-    if (filteredModified.length === 0 && fileteredRenamed.length === 0 && filteredDeleted.length === 0) {
+    if (filteredModified.length === 0 && filteredDeleted.length === 0) {
       console.log('No Changes');
     }
     else {
@@ -113,12 +111,6 @@ const micromatch = require('micromatch');
 
         await client.fastPut(file, remoteFile);
         console.log('Uploaded: ' + file);
-      }
-    
-      for (let i = 0; i < fileteredRenamed.length; i++) {
-        const file = fileteredRenamed[i];
-        await client.rename(remotePath + '/' + file, remotePath + '/' + file);
-        console.log('Renamed: ' + file);
       }
     }
   
