@@ -1,4 +1,4 @@
-# SFTP Deploy Actions
+# SFTP Deploy with Respect
 
 Upload to SFTP with compare hash from remote server
 

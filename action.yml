@@ -1,5 +1,7 @@
 name: 'SFTP Deploy with Respect'
-description: 'SFTP Deploy with respect last revision on the remote server'
+description: 'SFTP Deploy with respect last revision on the remote server',
+icon: 'upload-cloud',
+color: 'blue'
 inputs:
   host: 
     description: 'Remote Host'
