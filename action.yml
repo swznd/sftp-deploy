@@ -1,5 +1,5 @@
-name: 'Proper SFTP Deploy'
-description: 'SFTP Deploy with Proper'
+name: 'SFTP Deploy with Respect'
+description: 'SFTP Deploy with respect last revision on the remote server'
 inputs:
   host: 
     description: 'Remote Host'
@@ -27,7 +27,7 @@ inputs:
     default: ''
   remote_path:
     description: 'Remote Path'
-    required: false
+    required: true
     default: ''
   ignore:
     description: 'Ignore file/folders by glob matching'
