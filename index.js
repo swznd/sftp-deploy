@@ -7,7 +7,7 @@ const path = require('path');
 const micromatch = require('micromatch');
 
 (async () => {
-  let client = null;
+  let client = new sftpClient;
   let connected = false;
 
   try {
@@ -19,6 +19,7 @@ const micromatch = require('micromatch');
     const localPath = core.getInput('local_path');
     const remotePath = (core.getInput('remote_path') || '').trim('/');
     const ignore = (core.getInput('ignore') || '').split(',').filter(Boolean);
+    const remoteRev = core.getInput('remote_revision');
     const payload = github.context.payload;
   
     const config = {
@@ -28,14 +29,18 @@ const micromatch = require('micromatch');
       port: port || 22,
       privateKey: privateKey
     };
-    
-    client = new sftpClient;
+
     await client.connect(config);
     connected = true;
 
+    console.log('Connected. Current Working Directory:', await client.pwd());
+
     let start = '';
 
-    if (await client.exists(remotePath + '/.revision')) {
+    if (remoteRev != '') {
+      start = remoteRev;
+    }
+    else if (await client.exists(remotePath + '/.revision')) {
       const st = new Transform();
       st._transform = function (chunk,encoding,done)  {
         this.push(chunk)
@@ -57,8 +62,10 @@ const micromatch = require('micromatch');
     
     if (start == '') {
       console.log('Remote revision empty, get from initial commit');
-      start = (await git('hash-object', '-t', 'tree', '/dev/null')).trim();
+      start = await git('hash-object', '-t', 'tree', '/dev/null');
     }
+    
+    start = start.trim();
     
     console.log('Comparing', `${start}..${end}`);
 
@@ -103,6 +110,7 @@ const micromatch = require('micromatch');
         
         if (checkRemoteFilePath != 'd') {
           if (checkRemoteFilePath) {
+            console.log('Conflict! it should be directory. Remove file: ' + remoteFilePath);
             await client.delete(remoteFilePath);
           }
 

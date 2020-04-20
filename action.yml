@@ -35,6 +35,10 @@ inputs:
   ignore:
     description: 'Ignore file/folders by glob matching'
     required: false
+    default: '.github/**,.gitignore,**/.gitignore'
+  remote_revision:
+    description: 'Remote revision hash'
+    required: false
     default: ''
 runs:
   using: 'node12'

@@ -36,7 +36,11 @@ Root local directory to deploy, default is your root project
 
 ### `ignore`
 
-Ignore files, support glob wildcard, separated by comma each pattern. example: `ignoreFolder/**,ignoreFile*`
+Ignore files, support glob wildcard, separated by comma each pattern. default: `.github/**,.gitignore,**/.gitignore`
+
+### `remote_revision`
+
+Remote revision hash
 
 
 ## Action Example
