@@ -1,4 +1,4 @@
-name: 'Fast FTP Deploy'
+name: 'Fast SFTP Deploy'
 description: 'Upload only changes to SFTP Server'
 branding:
   icon: 'upload-cloud'
