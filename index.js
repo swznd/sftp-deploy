@@ -16,8 +16,8 @@ const micromatch = require('micromatch');
     const user = core.getInput('user');
     const password = core.getInput('password');
     const privateKey = core.getInput('private_key');
-    const localPath = core.getInput('local_path');
-    const remotePath = (core.getInput('remote_path') || '').trim('/');
+    const localPath = trimChar((core.getInput('local_path') || ''), '/').trim();
+    const remotePath = trimChar((core.getInput('remote_path') || ''), '/').trim();
     const ignore = (core.getInput('ignore') || '').split(',').filter(Boolean);
     const remoteRev = core.getInput('remote_revision');
     const payload = github.context.payload;
@@ -69,18 +69,25 @@ const micromatch = require('micromatch');
 
     console.log('Comparing', `${start}..${end}`);
 
-    const modified = await git('diff', '--name-only', '--diff-filter=AM', '-M100%', start, end);
+    const modified = await git('diff', '--name-only', '--diff-filter=AMR', '-M100%', start, end);
     const deleted = await git('diff-tree', '--name-only', '--diff-filter=D', '-t', start, end);
   
     const filterFile = file => {
       if (file === '') return false;
-      if (['', './', '.'].indexOf(localPath) !== -1 && !file.startsWith(localPath)) return false;
+      if (['', './', '.'].indexOf(localPath) === -1 && !file.startsWith(localPath)) return false;
       if (ignore.length && micromatch.isMatch(file, ignore)) return false;
       return true;
     }
 
-    const filteredModified = modified.split("\n").filter(filterFile);
-    const filteredDeleted = deleted.split("\n").filter(filterFile);
+    const replacePath = file => {
+      if (localPath == '') return file;
+
+      const start = new RegExp('^' + localPath + '/');
+      return file.replace(start, '');
+    }
+
+    const filteredModified = modified.split("\n").filter(filterFile).map(replacePath);
+    const filteredDeleted = deleted.split("\n").filter(filterFile).map(replacePath);
   
     if (filteredModified.length === 0 && filteredDeleted.length === 0) {
       console.log('No Changes');
@@ -156,5 +163,14 @@ const micromatch = require('micromatch');
         reject(e);
       }
     });
+  }
+
+  // https://stackoverflow.com/a/32516190
+  function trimChar(s, c) {
+    if (c === "]") c = "\\]";
+    if (c === "\\") c = "\\\\";
+    return s.replace(new RegExp(
+      "^[" + c + "]+|[" + c + "]+$", "g"
+    ), "");
   }
 })();
