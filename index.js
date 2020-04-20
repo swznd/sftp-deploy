@@ -33,7 +33,7 @@ const micromatch = require('micromatch');
     await client.connect(config);
     connected = true;
 
-    console.log('Connected. Current Working Directory:', await client.pwd());
+    console.log('Connected. Current Working Directory:', await client.cwd());
 
     let start = '';
 
@@ -66,7 +66,7 @@ const micromatch = require('micromatch');
     }
     
     start = start.trim();
-    
+
     console.log('Comparing', `${start}..${end}`);
 
     const modified = await git('diff', '--name-only', '--diff-filter=AM', '-M100%', start, end);
