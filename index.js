@@ -65,7 +65,7 @@ const micromatch = require('micromatch');
       start = await git('hash-object', '-t', 'tree', '/dev/null');
     }
     
-    start = start.trim();
+    start = start.toString().trim();
 
     console.log('Comparing', `${start}..${end}`);
 
