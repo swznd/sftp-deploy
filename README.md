@@ -122,3 +122,7 @@ jobs:
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           remote_path: /home/username/app
 ```
+
+## Other Deployment Actions
+
+FTP Deployment: https://github.com/swznd/ftp-deploy/
