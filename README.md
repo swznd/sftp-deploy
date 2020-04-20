@@ -81,7 +81,7 @@ on:
     branches: [ master ]
 
 env:
-  TOTAL_COMMITS: "-1"
+  TOTAL_COMMITS: "0"
   
 jobs:
   deploy:
@@ -114,6 +114,7 @@ jobs:
 
       # update TOTAL_COMMIT variable
       - name: set total_commit
+        if: steps.parse_total_commit_ahead.outputs.total_commits != ''
         run: "echo ::set-env name=TOTAL_COMMITS::$(( ${{ steps.parse_total_commit_ahead.outputs.total_commits }} + 1 ))" # add one commit back, so it can compare from remote revision
 
       - name: checkout
