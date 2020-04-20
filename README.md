@@ -73,7 +73,7 @@ jobs:
 
 ### Fast Action
 
-The `.revision` file need can be accessed via web
+It will fetch and checkout only the changes, the `.revision` file need can be accessed via web
 
 ```
 on:
@@ -88,9 +88,12 @@ jobs:
     runs-on: ubuntu-latest
     name: deploy
     steps:
+      # fetch revision
       - id: fetch_revision
         name: fetch revision
         run: echo ::set-output name=revision::$(curl -m 15 https://example.com/.revision)
+      
+      # check how much commits ahead via github API
       - id: get_total_commit_ahead
         name: fetch total commits count
         uses: octokit/request-action@v2.x
@@ -108,12 +111,16 @@ jobs:
         with:
           json: ${{ steps.get_total_commit_ahead.outputs.data }}
           total_commits: "total_commits"
+
+      # update TOTAL_COMMIT variable
       - name: set total_commit
-        run: "echo ::set-env name=TOTAL_COMMITS::$(( ${{ steps.parse_total_commit_ahead.outputs.total_commits }} + 1 ))"
+        run: "echo ::set-env name=TOTAL_COMMITS::$(( ${{ steps.parse_total_commit_ahead.outputs.total_commits }} + 1 ))" # add one commit back, so it can compare from remote revision
+
       - name: checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: ${{ env.TOTAL_COMMITS }}
+          fetch-depth: ${{ env.TOTAL_COMMITS }} # fetch with total commit
+
       - name: deploy
         uses:  swznd/sftp-deploy@master
         with:
